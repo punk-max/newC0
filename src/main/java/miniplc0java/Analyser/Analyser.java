@@ -253,11 +253,28 @@ public class Analyser {
 
     private boolean breakContinueStmt(){
         if(t.ifNextToken(TokenType.BREAK_KW))
-                throw new Error(getPos());
+        {
+            if(loopLevel==0)
+                throw new Error("token "+t.getThisToken().getValue().toString()+"cannot be here "+getPos());
+            else{
+                Marks.add(new Mark(functionList.getInstructionNum(),true));
+                functionList.addInstruction("null",(byte)0);
+            }
+        }
+
         else if(t.ifNextToken(TokenType.CONTINUE_KW))
-                throw new Error(getPos());
+        {
+            if(loopLevel==0)
+                throw new Error("token "+t.getThisToken().getValue().toString()+"cannot be here "+getPos());
+            else{
+                Marks.add(new Mark(functionList.getInstructionNum(),false));
+                functionList.addInstruction("null",(byte)0);
+            }
+        }
         else
             return false;
+        t.expectToken(TokenType.SEMICOLON);
+        return true;
     }
 
     private boolean returnStmt() {
